@@ -134,29 +134,130 @@ $(document).ready(function(){
         key_num = evt.keyCode;
 
         var $target = $(".box.active").index();  //$(elm+".active")
-        if(key_num == 40 || key_num == 34){
+        console.log($target);   //최종적으로 active가 들어간 곳을 찾는 것이 아니라 키보드 이벤트가 발생한 시점에서 active라는 클래스가 들어간 곳의 인덱스번호를 추출
+
+        if(key_num == 40 || key_num == 34){ //상방향키 & pageUp 키보드 눌렀을 때
             try{
-                $("html, body").stop().animate({scrollTop : $(elm).eq($target + 1).offset().top}, 250);
-                $(elm).removeClass("active")
-                $(elm).eq($target + 1).addClass("active");
-                $("header li").removeClass("active");
-                $("header li").eq($target + 1).addClass("active");
+                if($target == $(elm).length - 1){
+
+                }else{
+                    $("html, body").stop().animate({scrollTop : $(elm).eq($target + 1).offset().top}, 250);
+                    $(elm).removeClass("active")
+                    $(elm).eq($target + 1).addClass("active");
+                    $("header li").removeClass("active");
+                    $("header li").eq($target + 1).addClass("active");
+
+                }
             }catch(evt){
 
             }
-        }else if(key_num == 38 || key_num == 33){
+        }else if(key_num == 38 || key_num == 33){   //하방향키 & pageDown 키보드를 눌렀을때
             try{
-                $("html, body").stop().animate({scrollTop : $(elm).eq($target - 1).offset().top}, 250);
-                $(elm).removeClass("active")
-                $(elm).eq($target - 1).addClass("active");
-                $("header li").removeClass("active");
-                $("header li").eq($target - 1).addClass("active");
+                if($target == 0){
+                    
+                }else{
+                    $("html, body").stop().animate({scrollTop : $(elm).eq($target - 1).offset().top}, 250);
+                    $(elm).removeClass("active")
+                    $(elm).eq($target - 1).addClass("active");
+                    $("header li").removeClass("active");
+                    $("header li").eq($target - 1).addClass("active");
+                }
+               
             }catch(evt){
 
             };
             
+        }else if(key_num == 36){    //"Home" 버튼 클릭시 맨처음으로 이동
+            try{
+                $("html, body").stop().animate({scrollTop : $(elm).first().offset().top}, 250);
+                $(elm).removeClass("active")
+                $(elm).first().addClass("active");
+                $("header li").removeClass("active");
+                $("header li").first().addClass("active");
+            }catch(evt){
+
+            };
+        }else if(key_num == 35){    //"End" 버튼 클릭시 맨마지막으로 이동
+            try{
+                $("html, body").stop().animate({scrollTop : $(elm).last().offset().top}, 250);
+                $(elm).removeClass("active")
+                $(elm).last().addClass("active");
+                $("header li").removeClass("active");
+                $("header li").last().addClass("active");
+            }catch(evt){
+
+            };
         };
     });
+    //모바일 환겨하에서 터치기반 - touchstart(최초로 화면을 누른 시점에 발생ㄹ하는 이벤트), touchend(누른 후 드래그 이후의 손가락을 화면에서 떼는 시점에서 발생하는 이벤트)
 
+    var $t_start;   //최초로 터치한 Y축의 값
+    var $t_end;   //드래그 이후 터치가 언터치한 Y축의 값
+    var $t_move;    //$t_start에서 $t_end로 이동한 값을 계산
+
+    function prev(evt){
+        try{
+            var $target = $(".box.active").index();
+            if($target != 0){
+                $("html, body").stop().animate({scrollTop:$(elm).eq($target - 1).offset().top}, 250, function(){
+                    $(elm).removeClass("active");
+                    $(elm).eq($target - 1).addClass("active");
+                    $("header li").removeClass("active");
+                    $("header li").eq($target - 1).addClass("active");
+                });
+            };
+        }catch(evt){
+
+        };
+    };
+    function next(evt){
+        try{
+            var $target = $(".box.active").index();
+            if($target != $(elm).length - 1){
+                $("html, body").stop().animate({scrollTop:$(elm).eq($target + 1).offset().top}, 250, function(){
+                    $(elm).removeClass("active");
+                    $(elm).eq($target + 1).addClass("active");
+                    $("header li").removeClass("active");
+                    $("header li").eq($target + 1).addClass("active");
+                });
+                
+            };
+
+        }catch(evt){
+
+        };
+
+    
+
+    };
+
+    function touchmove(evt){    //evt는 대입에 대한 변수 역할을 부여
+        console.log(evt);
+        $t_move = $t_start - $t_end
+        console.log($t_move);
+        //터치의 방향이 상단 방향 이라면 : 양수
+        //터치의 방향이 하단 방향 이라면 : 음수
+        if($t_move > 0){  //터치의 이동방향이 상단 방향이라면 하단 컨텐츠가 나와야함  
+            next(evt);
+        }else if($t_move > 0){  //터치의 이동방향이 하단 방향이라면 상단 컨텐츠가 나와야함  
+            prev(evt);
+
+        };
+    };
+
+    $(elm).on("touchstart", function(event){
+        // console.log("터치 시작")
+        // console.log(event);
+        console.log(event.changedTouches[0].pageY);
+        $t_start = event.changedTouches[0].pageY;
+    });
+
+    $(elm).on("touchend", function(event){
+        // console.log("터치 종료");
+        console.log(event.changedTouches[0].pageY);
+        $t_end = event.changedTouches[0].pageY;
+
+        touchmove()
+    });
 
 });
